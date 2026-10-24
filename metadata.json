@@ -1,0 +1,6 @@
+{
+  "name": "AstraMemory - Videojuego Espacial Arcade",
+  "description": "Videojuego web arcade de memoria y exploración espacial con modos clásico, contrarreloj, movimientos limitados, desafío diario, memoria extrema y multijugador local.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

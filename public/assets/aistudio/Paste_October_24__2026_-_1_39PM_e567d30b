@@ -1,0 +1,1127 @@
+# PROMPT MAESTRO PARA ANTIGRAVITY
+## Desarrollo de un videojuego web profesional de memoria espacial
+
+Actúa como un **equipo senior de desarrollo de videojuegos web**, integrado por un arquitecto de software, un desarrollador especializado en TypeScript, un diseñador UX/UI de videojuegos, un ingeniero de gameplay, un especialista en accesibilidad, un ingeniero de pruebas y un especialista en seguridad web.
+
+Tu misión es inspeccionar el proyecto existente y desarrollar un videojuego web de memoria con temática espacial, identidad visual arcade, niveles progresivos, diferentes modos de juego, logros, desbloqueables, estadísticas, persistencia local y multijugador para dos personas en el mismo dispositivo.
+
+El objetivo es construir un **producto real, funcional, pulido y potencialmente comercializable**, no una demo, una landing page, una maqueta visual ni un tablero de cartas sin profundidad jugable.
+
+Debes implementar, ejecutar y verificar las funcionalidades antes de declararlas terminadas.
+
+---
+
+# 1. REGLAS INNEGOCIABLES
+
+1. Inspecciona primero el proyecto, sus archivos, dependencias, arquitectura, comandos, componentes, estilos y funcionalidades existentes.
+2. Si el proyecto ya contiene código funcional, consérvalo y mejóralo. No lo reemplaces indiscriminadamente ni reinicies el proyecto desde cero.
+3. Identifica el punto de entrada, las rutas, el sistema de construcción, el framework y las convenciones que utiliza el repositorio.
+4. Antes de modificar archivos, presenta un diagnóstico breve: qué existe, qué puede reutilizarse, qué está incompleto y cuál será el plan de implementación.
+5. No elimines funcionalidades, datos, configuraciones o dependencias sin justificarlo y comprobar que no se necesitan.
+6. No generes una maqueta vacía con botones decorativos, estadísticas inventadas o pantallas que no llevan a ninguna parte.
+7. No simules persistencia, guardado, logros, clasificación ni multijugador. Cada función anunciada debe tener un comportamiento real y comprobable.
+8. No afirmes que una prueba pasó si no la ejecutaste y verificaste su resultado.
+9. No uses datos falsos para hacer parecer que el jugador tiene récords, progreso o logros. Los estados iniciales deben distinguirse de los datos reales.
+10. No introduzcas APIs comerciales, claves secretas, servicios de pago ni infraestructura externa como requisitos del funcionamiento básico.
+11. Evita dependencias innecesarias. Antes de instalar una biblioteca, explica qué aporta y por qué no conviene resolverlo con las herramientas existentes.
+12. No realices migraciones destructivas ni cambios irreversibles sin autorización.
+13. Mantén el juego funcional durante el desarrollo y corrige las regresiones introducidas.
+14. Si algo no puede implementarse o probarse en el entorno disponible, decláralo expresamente.
+15. No detengas el trabajo después de presentar el plan. Continúa implementando por fases, verifica cada fase y entrega un producto ejecutable.
+
+Si encuentras ambigüedades técnicas, toma decisiones razonables, documenta los supuestos y continúa sin bloquear el desarrollo por detalles menores.
+
+---
+
+# 2. CONCEPTO E IDENTIDAD DEL JUEGO
+
+Desarrolla un videojuego de memoria con identidad propia. El tema es el espacio: exploración galáctica, constelaciones, planetas, lunas, estrellas, nebulosas, estaciones espaciales, satélites, cometas y tecnología futurista.
+
+El juego debe transmitir la sensación de una aventura arcade en la que el jugador explora sectores de una galaxia, supera pruebas de memoria, gana experiencia, desbloquea contenido y construye su propio historial.
+
+## Dirección visual
+
+Utiliza un lenguaje visual arcade moderno, dinámico y cuidado:
+
+- Fondos espaciales oscuros, con profundidad y contraste.
+- Planetas, estrellas y nebulosas como elementos ambientales.
+- Acentos luminosos inspirados en cian, azul eléctrico, violeta y otros colores cósmicos.
+- Tipografía muy legible, con una fuente de personalidad tecnológica para títulos y otra clara para textos funcionales.
+- Cartas con reversos reconocibles y diseños diferenciados de sus caras.
+- Animaciones fluidas, efectos de descubrimiento y transiciones coherentes.
+- Jerarquía visual clara entre información principal, controles, progreso y elementos secundarios.
+- Iconografía consistente y elementos gráficos de calidad uniforme.
+
+No conviertas todas las superficies en paneles con bordes brillantes. Evita el exceso de neón, las sombras exageradas, el desenfoque indiscriminado, las tarjetas dentro de tarjetas y los adornos que dificulten la lectura.
+
+El resultado debe parecer un videojuego terminado, no un dashboard administrativo con cartas encima.
+
+## Identidad del producto
+
+Diseña un nombre provisional original y una identidad visual coherente. Mantén el nombre, los colores y los parámetros principales centralizados para poder personalizarlos después.
+
+No copies personajes, logotipos, música, ilustraciones ni recursos protegidos de otros videojuegos. Utiliza recursos originales, creados específicamente para el proyecto o con licencias compatibles con el uso comercial.
+
+---
+
+# 3. ARQUITECTURA TÉCNICA RECOMENDADA
+
+## 3.1 Inspección y elección tecnológica
+
+Primero determina si existe una aplicación previa y qué tecnologías utiliza.
+
+- Si ya existe una base adecuada, conserva su framework y adapta la arquitectura.
+- Si el proyecto está vacío, utiliza TypeScript y un framework moderno apropiado para interfaces web, preferentemente React con Vite si no hay una razón concreta para elegir otra opción.
+- Utiliza CSS modular, CSS Modules o el sistema de estilos que mejor encaje con el proyecto existente.
+- Evita introducir un motor gráfico pesado si el juego puede implementarse eficientemente con HTML, CSS y TypeScript.
+- Utiliza Canvas únicamente si una necesidad real de renderizado lo justifica.
+- No agregues una biblioteca de gestión global de estado si el estado puede organizarse con las herramientas nativas del framework.
+
+No migres una aplicación existente de tecnología solo por preferencia personal.
+
+## 3.2 Separación por responsabilidades
+
+Organiza el código en módulos con responsabilidades definidas. Adapta esta propuesta al proyecto existente:
+
+- `app/`: arranque, navegación, configuración general y composición de pantallas.
+- `game/engine/`: reglas, estados, generación de tableros y resolución de acciones.
+- `game/modes/`: reglas específicas de cada modo.
+- `game/progression/`: experiencia, niveles, misiones, logros y desbloqueables.
+- `game/multiplayer/`: turnos, puntuación y gestión de dos jugadores locales.
+- `game/data/`: catálogo de símbolos, temas, niveles y configuración.
+- `game/persistence/`: guardado, recuperación, migraciones y validación.
+- `components/`: componentes de interfaz reutilizables.
+- `screens/`: inicio, selección de modo, mapa de progresión, juego, resultados, estadísticas y ajustes.
+- `styles/`: tokens de diseño, tipografía, animaciones y estilos responsivos.
+- `tests/`: pruebas unitarias, de integración y de extremo a extremo.
+
+No es obligatorio replicar literalmente estas carpetas. Lo importante es que las reglas del juego no estén mezcladas con los componentes visuales ni dependan directamente del DOM.
+
+## 3.3 Principios arquitectónicos
+
+- Mantén una única fuente de verdad para el estado de la partida.
+- Separa la lógica determinista del juego de los efectos visuales.
+- Separa las reglas compartidas de las específicas de cada modo.
+- Centraliza los parámetros configurables.
+- Evita estados duplicados que puedan contradecirse.
+- Usa tipos estrictos de TypeScript y evita `any` sin justificación.
+- Diseña interfaces pequeñas y responsabilidades claras.
+- Evita componentes monolíticos que concentren toda la aplicación.
+- Mantén las dependencias entre módulos explícitas.
+- Permite añadir nuevos temas, niveles y modos sin reescribir el motor.
+
+Documenta las decisiones importantes y las limitaciones reales de esta arquitectura.
+
+---
+
+# 4. EXPERIENCIA DE USUARIO Y PANTALLAS
+
+Construye una experiencia completa, navegable y coherente.
+
+## 4.1 Pantalla de inicio
+
+Debe mostrar:
+
+- Identidad del juego.
+- Botón principal para continuar una partida guardada, cuando exista.
+- Opción para comenzar una nueva partida.
+- Acceso a selección de modo.
+- Acceso a progresión y mapa galáctico.
+- Acceso a estadísticas y récords.
+- Acceso a logros y desbloqueables.
+- Personalización de temas.
+- Ajustes de sonido, animaciones y accesibilidad.
+- Acceso al tutorial.
+- Entrada al multijugador local.
+
+Si no existe una partida recuperable, no muestres un botón de continuar que no funcione.
+
+## 4.2 Selección de modo
+
+Presenta los cinco modos principales con descripciones cortas, reglas esenciales y la información necesaria para comprender sus diferencias.
+
+Los modos son:
+
+1. Clásico.
+2. Contrarreloj.
+3. Movimientos limitados.
+4. Desafío diario.
+5. Memoria extrema.
+
+El multijugador local debe estar disponible como modalidad adicional de dos jugadores, con reglas de turnos propias.
+
+No llenes la pantalla con paneles idénticos. Utiliza una composición visual con jerarquía, estados de selección claros y una navegación sencilla.
+
+## 4.3 Mapa galáctico y progresión
+
+Crea un mapa de sectores o una representación equivalente de la progresión.
+
+Cada sector puede representar una región espacial con niveles y objetivos propios.
+
+Debe distinguir visualmente:
+
+- Niveles completados.
+- Nivel disponible para jugar.
+- Niveles bloqueados.
+- Niveles con objetivos opcionales.
+- Récord personal del nivel, cuando exista.
+- Recompensas disponibles.
+- Progreso del sector actual.
+
+El mapa no debe ser solo decorativo: seleccionar un nivel disponible debe abrir la partida correspondiente y respetar sus reglas.
+
+En pantallas pequeñas, sustituye cualquier mapa difícil de manipular por una lista o vista simplificada sin perder información esencial.
+
+## 4.4 Pantalla de partida
+
+Debe incluir, según el modo:
+
+- Tablero de cartas.
+- Indicador de movimientos.
+- Tiempo transcurrido o restante.
+- Parejas encontradas y pendientes.
+- Puntuación.
+- Progreso del nivel.
+- Indicador del turno en multijugador.
+- Pausa cuando corresponda.
+- Controles de reanudación o salida segura.
+- Ayudas contextuales, si están permitidas.
+
+El tablero es el centro de atención. Los indicadores deben ser visibles, pero no competir visualmente con las cartas.
+
+## 4.5 Resultados
+
+Al terminar una partida, presenta información calculada a partir del estado real:
+
+- Resultado de victoria o derrota.
+- Puntuación final.
+- Tiempo empleado o restante.
+- Movimientos utilizados.
+- Parejas encontradas.
+- Precisión o eficiencia, si su fórmula está definida.
+- Experiencia obtenida.
+- Récord personal, si realmente se superó.
+- Logros desbloqueados.
+- Recompensas obtenidas.
+- Opciones para repetir, continuar, volver al mapa o regresar al inicio.
+
+No otorgues recompensas dos veces por el mismo resultado debido a reintentos, recargas o eventos duplicados.
+
+## 4.6 Estadísticas y récords
+
+Incluye estadísticas persistentes como:
+
+- Partidas iniciadas y completadas.
+- Victorias y derrotas por modo.
+- Tiempo total jugado.
+- Movimientos realizados.
+- Parejas encontradas.
+- Mejor tiempo por nivel y modo.
+- Mejor puntuación.
+- Rachas de victorias.
+- Progreso de niveles y sectores.
+- Logros obtenidos.
+- Historial reciente de partidas.
+
+Distingue las métricas globales de las específicas de cada modo. No compares récords obtenidos bajo reglas diferentes como si fueran equivalentes.
+
+## 4.7 Tutorial
+
+Implementa un tutorial breve e interactivo que explique:
+
+- Cómo voltear cartas.
+- Cómo identificar parejas.
+- Cómo se contabilizan los movimientos.
+- Qué sucede cuando las cartas no coinciden.
+- Cómo funcionan los modos.
+- Cómo se guarda y reanuda el progreso.
+- Cómo funciona el multijugador local.
+
+Permite volver a consultar las instrucciones desde el menú.
+
+---
+
+# 5. MOTOR DEL JUEGO Y MODELO DE ESTADO
+
+Implementa un motor de juego independiente de la interfaz.
+
+El motor debe recibir acciones válidas, comprobar las reglas y producir un nuevo estado coherente. Los componentes visuales solo deben mostrar ese estado y solicitar acciones.
+
+## 5.1 Modelo de cartas
+
+Cada carta debe tener, como mínimo:
+
+- Un identificador único dentro de la partida.
+- Un identificador de pareja o símbolo.
+- Un estado de revelación.
+- Un estado de coincidencia.
+- Los metadatos visuales necesarios.
+
+No uses la posición de una carta como identificador permanente si el tablero puede reorganizarse.
+
+El símbolo y la identidad lógica de una carta deben mantenerse separados de su representación visual, de forma que cambiar de tema no altere las reglas.
+
+## 5.2 Generación de tableros
+
+Implementa un generador que:
+
+1. Determine la cantidad de parejas correspondiente al nivel.
+2. Cree exactamente dos cartas por pareja.
+3. Asigne identificadores únicos.
+4. Baraje las cartas con un algoritmo apropiado.
+5. Verifique que el tablero tenga una cantidad par de cartas.
+6. Compruebe que todas las parejas estén completas.
+7. Permita restaurar una partida sin cambiar su disposición guardada.
+
+La distribución debe ser reproducible cuando sea necesario recuperar el estado guardado. Guarda la disposición real o suficiente información para reconstruirla exactamente; no vuelvas a barajar al reanudar una partida.
+
+Evita secuencias de barajado que dejen las parejas en posiciones previsibles o que siempre generen una disposición equivalente.
+
+## 5.3 Reglas generales verificables
+
+- Una partida nueva comienza con todas las cartas ocultas, salvo que el modo indique expresamente otra cosa.
+- Solo se puede revelar una carta oculta y no emparejada.
+- Una carta emparejada nunca vuelve a ocultarse.
+- Una pareja correcta se registra exactamente una vez.
+- Una pareja incorrecta no puede provocar un segundo movimiento antes de resolver el primero.
+- No se permite ejecutar acciones de juego mientras la partida esté pausada, terminada o bloqueada por una resolución pendiente.
+- Una partida no puede tener más parejas encontradas que parejas existentes.
+- Una victoria solo se produce cuando se cumplen las condiciones de finalización del modo.
+- Una derrota debe producirse únicamente por una condición definida en las reglas.
+- Una acción inválida no debe modificar el estado ni conceder puntuación.
+- Un reinicio debe crear un nuevo estado de partida sin corromper las estadísticas anteriores.
+- Un resultado final se procesa una sola vez.
+
+Las reglas específicas de cada modo deben estar centralizadas y cubiertas por pruebas.
+
+---
+
+# 6. PREVENCIÓN DE ERRORES AL VOLTEAR CARTAS
+
+Este apartado es crítico. No lo resuelvas únicamente con deshabilitar botones visualmente.
+
+Implementa una máquina de estados explícita y una transición controlada por el motor.
+
+Estados sugeridos:
+
+- `ready`: partida lista.
+- `playing`: se permiten acciones de juego.
+- `resolving`: se está resolviendo una pareja incorrecta.
+- `paused`: partida pausada.
+- `won`: victoria.
+- `lost`: derrota.
+- `abandoned`: partida abandonada sin registrar una victoria o derrota ficticia.
+
+Puedes adaptar los nombres, pero los estados deben ser inequívocos.
+
+## 6.1 Secuencia de revelación
+
+1. El jugador solicita revelar una carta.
+2. El motor valida el estado general y la carta seleccionada.
+3. Si la acción es inválida, la rechaza sin efectos secundarios.
+4. Si es la primera carta de la pareja, la revela y registra su selección.
+5. Si es la segunda, la revela y contabiliza el movimiento de acuerdo con las reglas.
+6. El motor compara ambas identidades lógicas.
+7. Si coinciden, marca las dos como emparejadas y actualiza el progreso una sola vez.
+8. Si no coinciden, entra en `resolving`, bloquea las acciones incompatibles y programa la resolución visual mediante un mecanismo controlado.
+9. Al finalizar la resolución, vuelve a ocultar ambas cartas si la partida sigue activa y limpia la selección pendiente.
+10. Evalúa las condiciones de victoria o derrota y actualiza el estado cuando corresponda.
+
+## 6.2 Bloqueo de interacciones
+
+Debes impedir específicamente:
+
+- Voltear la misma carta dos veces.
+- Seleccionar una tercera carta mientras hay dos cartas pendientes de resolución.
+- Alterar una pareja ya encontrada.
+- Contabilizar dos veces el mismo movimiento.
+- Ejecutar varias resoluciones para la misma pareja.
+- Reiniciar una partida y permitir que una resolución de la partida anterior modifique la nueva.
+- Seguir jugando después de finalizar.
+- Alterar cartas mediante eventos de teclado mientras la interfaz indica que están bloqueadas.
+- Registrar dos resultados finales por eventos duplicados.
+
+No confíes en que el usuario no haga clic rápidamente. Los eventos pueden llegar en ráfagas, los dispositivos táctiles pueden producir eventos diferentes y las animaciones pueden terminar fuera de orden.
+
+## 6.3 Control de operaciones asíncronas
+
+Utiliza identificadores de partida, tokens de operación o un mecanismo equivalente para invalidar tareas pendientes cuando se reinicia, abandona o restaura una partida.
+
+Evita temporizadores dispersos y sin control.
+
+La resolución visual no debe decidir la lógica del juego: el motor determina el resultado; la animación solo representa ese resultado.
+
+En caso de que el usuario cambie de pantalla o reinicie durante una animación, no debe producirse una mutación tardía del estado.
+
+## 6.4 Pruebas obligatorias
+
+Automatiza pruebas para:
+
+- Clics rápidos consecutivos.
+- Doble clic sobre una misma carta.
+- Selección de una tercera carta durante una resolución.
+- Coincidencia correcta.
+- Pareja incorrecta.
+- Pausa durante la partida.
+- Reinicio durante una animación.
+- Salida y reanudación.
+- Victoria en la última pareja.
+- Expiración del tiempo.
+- Agotamiento de movimientos.
+- Eventos duplicados.
+- Restauración de un estado guardado.
+- Interacciones por teclado y pantalla táctil.
+
+Estas pruebas deben verificar el estado real del motor, no solamente que un botón cambió de apariencia.
+
+---
+
+# 7. MODOS DE JUEGO
+
+Cada modo debe ser jugable, tener reglas propias y registrar sus resultados correctamente.
+
+## 7.1 Modo clásico
+
+Objetivo: encontrar todas las parejas.
+
+- No hay límite de tiempo obligatorio.
+- No hay límite de movimientos obligatorio.
+- Los movimientos se contabilizan de forma consistente.
+- La partida termina cuando todas las parejas se han encontrado.
+- La puntuación premia la eficiencia sin volver inútil el modo para jugadores principiantes.
+
+## 7.2 Modo contrarreloj
+
+Objetivo: completar el tablero antes de que se agote el tiempo.
+
+- El tiempo inicial debe proceder de la configuración del nivel.
+- El contador utiliza una referencia temporal fiable y no depende de sumar intervalos de animación.
+- Al pausar, el tiempo deja de consumirse si las reglas permiten la pausa.
+- Al reanudar, el contador continúa correctamente.
+- Al llegar a cero, se finaliza la partida una sola vez.
+- Las operaciones pendientes no pueden conceder una victoria después de la derrota.
+
+## 7.3 Modo de movimientos limitados
+
+Objetivo: encontrar todas las parejas con un máximo de movimientos.
+
+- El límite se define por nivel.
+- Cada intento de pareja consume exactamente la cantidad de movimientos establecida.
+- Voltear una sola carta no consume un movimiento completo, salvo que la regla documentada diga lo contrario.
+- Una pareja correcta y una incorrecta se contabilizan según el mismo criterio.
+- Al agotar el límite sin completar el tablero, se produce una derrota.
+
+## 7.4 Desafío diario
+
+Implementa un reto que cambie según la fecha.
+
+- Utiliza una fecha de referencia documentada y una zona horaria definida para evitar ambigüedades.
+- Genera una configuración determinista a partir de la fecha y una semilla.
+- Dos jugadores que utilicen la misma versión del juego y el mismo día deben recibir la misma configuración.
+- La dificultad, las reglas y la disposición deben poder reproducirse.
+- Registra si el reto fue completado y conserva el resultado.
+- Evita que una recarga permita cobrar dos veces una recompensa.
+- Define qué ocurre si el usuario cambia la fecha del dispositivo, pierde conexión o juega varios retos en una misma fecha.
+- No prometas una clasificación mundial verificable cuando el juego funciona únicamente con almacenamiento local.
+
+El desafío diario debe ser una experiencia real y comprobable, no un botón que simplemente inicia el modo clásico.
+
+## 7.5 Memoria extrema
+
+Diseña un modo avanzado, claramente diferenciado del clásico.
+
+Propuesta inicial:
+
+- Mostrar temporalmente el tablero completo o un conjunto de cartas durante una fase de memorización.
+- Ocultar las cartas al terminar esa fase.
+- Iniciar la fase de resolución.
+- Aplicar límites de tiempo, movimientos o ayudas según la configuración del nivel.
+- Desactivar las ayudas que contradigan las reglas del modo.
+- Comunicar claramente las reglas antes de empezar.
+
+No introduzcas penalizaciones ocultas ni condiciones arbitrarias. Los parámetros deben ser configurables y verificables mediante pruebas.
+
+## 7.6 Multijugador local para dos jugadores
+
+Implementa dos jugadores en un mismo dispositivo, sin requerir conexión a Internet.
+
+Antes de comenzar:
+
+- Permite configurar los nombres de ambos jugadores.
+- Explica cómo funcionan los turnos.
+- Define las reglas de puntuación y el criterio para ganar.
+
+Durante la partida:
+
+- Muestra claramente el turno actual.
+- Evita que un jugador ejecute acciones durante el turno del otro.
+- Registra las parejas y los puntos una sola vez.
+- Resuelve correctamente las parejas fallidas.
+- Aplica una política consistente de cambio de turno.
+- Mantén las cartas encontradas visibles.
+- Evita que una pausa, reinicio o cambio de pantalla corrompa los turnos.
+
+Como regla inicial, una pareja correcta concede un punto y permite continuar al jugador actual; una pareja incorrecta cede el turno al rival una vez resuelta la selección. Si el nivel o el modo utiliza otra regla, debe declararse antes de jugar.
+
+Al terminar, presenta ambos resultados, el ganador o el empate, y la opción de revancha.
+
+Las estadísticas de dos jugadores deben mantenerse separadas de las estadísticas de partidas individuales, salvo que el usuario decida expresamente combinar alguna métrica.
+
+---
+
+# 8. NIVELES, PROGRESIÓN Y ECONOMÍA DEL JUEGO
+
+El juego debe tener una progresión significativa y equilibrada.
+
+## 8.1 Curva de dificultad
+
+Diseña una progresión de niveles que aumente gradualmente la complejidad.
+
+Los parámetros pueden incluir:
+
+- Cantidad de parejas.
+- Dimensiones del tablero.
+- Tiempo disponible.
+- Límite de movimientos.
+- Duración de la fase de memorización.
+- Disponibilidad de ayudas.
+- Objetivos secundarios.
+- Reglas específicas de ciertos sectores.
+
+No aumentes todas las variables simultáneamente en cada nivel. Introduce nuevas exigencias de forma gradual.
+
+Crea una curva de dificultad configurable en datos, no una cadena de condiciones dispersas en los componentes.
+
+Cada nivel debe contar con:
+
+- Identificador estable.
+- Nombre.
+- Sector.
+- Parámetros de juego.
+- Condición de desbloqueo.
+- Condición de victoria.
+- Recompensas.
+- Objetivos opcionales, cuando existan.
+
+Incluye contenido inicial suficiente para demostrar una progresión real. No crees cientos de niveles repetidos artificialmente para inflar el tamaño del juego.
+
+## 8.2 Experiencia y recompensas
+
+Implementa una fórmula explícita para conceder experiencia.
+
+La experiencia puede depender de:
+
+- Completar el nivel.
+- Eficiencia de movimientos.
+- Tiempo restante.
+- Objetivos secundarios.
+- Reto diario completado.
+
+Evita que una sola estrategia repetible genere experiencia ilimitada.
+
+Las recompensas deben calcularse en el motor y procesarse una sola vez por resultado válido.
+
+## 8.3 Desbloqueables
+
+Implementa desbloqueables funcionales, por ejemplo:
+
+- Reversos de cartas.
+- Paletas de colores.
+- Efectos de revelación.
+- Marcos de perfil.
+- Temas espaciales.
+- Elementos visuales del mapa.
+
+Los desbloqueables deben tener identificadores estables, condiciones explícitas y estado persistente.
+
+No presentes como desbloqueado un elemento que no se haya obtenido realmente. Los elementos bloqueados deben indicar cómo conseguirlos.
+
+## 8.4 Logros
+
+Diseña logros con condiciones comprobables, por ejemplo:
+
+- Completar el primer nivel.
+- Encontrar un número acumulado de parejas.
+- Ganar varias partidas consecutivas.
+- Completar un nivel con un límite de movimientos.
+- Superar un desafío diario.
+- Ganar una partida multijugador.
+- Completar un sector.
+- Obtener un récord personal.
+
+Cada logro debe tener:
+
+- Identificador único.
+- Nombre y descripción.
+- Condición verificable.
+- Estado de progreso.
+- Fecha de desbloqueo, cuando corresponda.
+- Recompensa opcional.
+
+Los logros deben evaluarse a partir de eventos de juego reales. No dependas de que una pantalla concreta se abra para comprobarlos.
+
+---
+
+# 9. PUNTUACIÓN, ESTADÍSTICAS Y CLASIFICACIÓN
+
+Implementa un sistema coherente de puntuación.
+
+Documenta la fórmula y sus límites. Por ejemplo, puedes partir de una recompensa por pareja correcta, aplicar una penalización moderada por intentos fallidos y otorgar una bonificación por completar el nivel eficientemente.
+
+La fórmula definitiva debe ser configurable y debe probarse con valores extremos.
+
+Reglas:
+
+- La puntuación nunca debe volverse negativa si la interfaz y las reglas no contemplan puntuaciones negativas.
+- Un mismo evento no puede conceder puntos dos veces.
+- Los modos con condiciones diferentes deben tener récords separados.
+- Los récords personales deben comparar resultados equivalentes.
+- Las estadísticas se actualizan al confirmar el resultado, no por cada renderizado.
+- Un abandono no debe contabilizarse como victoria.
+- Los resultados parciales no deben presentarse como récords definitivos.
+
+## Clasificación
+
+Con almacenamiento local, implementa una clasificación local de récords y resultados.
+
+Debe permitir consultar, cuando haya datos suficientes:
+
+- Mejores puntuaciones.
+- Mejores tiempos.
+- Récords por nivel.
+- Resultados por modo.
+- Victorias multijugador locales.
+
+Explica que esta clasificación corresponde al dispositivo y al perfil local. No la llames mundial, global ni competitiva en línea.
+
+Si en el futuro se añade una clasificación remota, requerirá un backend con validación del servidor, controles contra manipulación, políticas de privacidad y medidas contra abuso. No la simules dentro de esta versión.
+
+---
+
+# 10. PERSISTENCIA LOCAL Y AUTOGUARDADO
+
+Implementa un sistema de persistencia fiable.
+
+## 10.1 Tecnología
+
+Usa IndexedDB para el progreso estructurado, el historial y las partidas guardadas si el volumen y las necesidades lo justifican. Puede utilizarse `localStorage` para preferencias pequeñas y sencillas.
+
+No guardes toda la aplicación en una única cadena JSON en `localStorage` si el modelo de datos crece o necesita transacciones.
+
+No dependas de servicios remotos para que el juego básico funcione.
+
+## 10.2 Datos persistentes
+
+Guarda, como mínimo:
+
+- Versión del esquema de datos.
+- Progreso de niveles y sectores.
+- Experiencia y recompensas.
+- Logros y desbloqueables.
+- Preferencias del usuario.
+- Récords y estadísticas.
+- Historial reciente.
+- Partida individual recuperable.
+- Partida multijugador recuperable, si se decide admitirla.
+
+La partida guardada debe incluir los datos necesarios para reconstruir exactamente su estado, como las cartas, las parejas encontradas, los movimientos, el modo, el nivel, el turno y los datos temporales pertinentes.
+
+## 10.3 Autoguardado
+
+Guarda automáticamente en puntos seguros:
+
+- Al iniciar una partida.
+- Después de una acción confirmada.
+- Después de completar una pareja.
+- Al pausar.
+- Al cambiar de pantalla de forma segura.
+- Al terminar una partida.
+- Al actualizar preferencias o progreso.
+
+Evita escrituras redundantes en cada renderizado.
+
+Utiliza transacciones cuando varias modificaciones deban considerarse una sola operación. Evita que una interrupción deje el progreso en un estado contradictorio.
+
+## 10.4 Reanudación
+
+Al regresar al juego:
+
+- Detecta si existe una partida recuperable.
+- Valida el formato y la integridad de los datos.
+- Restaura la disposición original.
+- Restaura los movimientos y las parejas encontradas.
+- Recupera el turno correcto en multijugador, si corresponde.
+- Reconstruye el estado temporal según las reglas del modo.
+- No duplica estadísticas ni recompensas.
+
+Si una partida se guardó durante la resolución de una pareja incorrecta, define una política explícita. Por ejemplo, restaurar la partida en un estado seguro y resolver las cartas pendientes sin permitir nuevas acciones prematuras.
+
+## 10.5 Datos corruptos o incompatibles
+
+Implementa:
+
+- Validación al leer.
+- Versionado de esquemas.
+- Migraciones controladas.
+- Recuperación ante registros inválidos.
+- Mensajes claros al usuario.
+- Una opción para reiniciar el progreso con confirmación.
+
+No borres automáticamente todo el progreso porque un único registro esté corrupto. Aísla el problema y conserva los datos recuperables.
+
+Incluye una función para exportar e importar un respaldo del progreso en un formato versionado y validado, si resulta compatible con la arquitectura. La importación debe validar el contenido antes de modificar los datos existentes.
+
+Aclara que el almacenamiento local puede perderse si el usuario borra los datos del navegador o cambia de dispositivo. No prometas sincronización entre dispositivos.
+
+---
+
+# 11. UX/UI RESPONSIVA Y CONTROLES TÁCTILES
+
+Diseña primero la experiencia de juego y después adapta la interfaz a cada pantalla.
+
+## Escritorio
+
+- Aprovecha el espacio disponible sin estirar las cartas innecesariamente.
+- Mantén el tablero centrado y con proporciones consistentes.
+- Evita grandes áreas vacías o indicadores dispersos.
+- Usa controles de teclado y ratón cuando sean apropiados.
+
+## Tabletas
+
+- Ajusta las dimensiones del tablero.
+- Evita que los paneles de información reduzcan demasiado las cartas.
+- Mantén una navegación táctil cómoda.
+
+## Móviles
+
+- Prioriza el tablero.
+- Utiliza botones suficientemente grandes y separados.
+- Evita el desplazamiento horizontal.
+- Mantén los indicadores esenciales visibles.
+- No coloques controles importantes detrás de elementos superpuestos.
+- Ajusta el número de columnas y el tamaño de las cartas a la pantalla.
+- Respeta las áreas seguras del dispositivo cuando corresponda.
+- No dependas de hover.
+- Evita que una pulsación se interprete como varias acciones.
+- Comprueba el juego en orientación vertical y horizontal.
+
+Utiliza unidades flexibles y puntos de ruptura definidos por el contenido, no por una colección arbitraria de dispositivos.
+
+## Animaciones
+
+- Proporciona transiciones suaves y coherentes.
+- Evita bloquear interacciones por animaciones decorativas.
+- Separa las animaciones de la lógica del juego.
+- Permite reducir o desactivar los efectos.
+- Respeta la preferencia de movimiento reducido del sistema.
+- Evita parpadeos intensos y efectos que puedan resultar molestos.
+
+---
+
+# 12. SONIDO Y PERSONALIZACIÓN
+
+Implementa audio opcional con funciones reales:
+
+- Sonido al revelar una carta.
+- Sonido al encontrar una pareja.
+- Sonido al completar un nivel.
+- Sonido de logro o recompensa.
+- Sonidos discretos para errores y acciones importantes.
+
+Requisitos:
+
+- Control de volumen.
+- Silenciar y reactivar.
+- Preferencia persistente.
+- No reproducir audio automáticamente antes de una interacción válida del usuario cuando el navegador lo impida.
+- Evitar sonidos repetitivos que se superpongan durante eventos rápidos.
+- Utilizar recursos originales o con licencia adecuada.
+
+La personalización debe permitir cambiar temas de cartas y elementos visuales sin modificar la lógica del juego.
+
+Cada tema debe tener un conjunto de recursos coherente, contrastes legibles y metadatos claros.
+
+---
+
+# 13. ACCESIBILIDAD
+
+Aplica accesibilidad desde el principio, no como una corrección posterior.
+
+Incluye:
+
+- Navegación completa por teclado.
+- Foco visible.
+- Orden de tabulación lógico.
+- Etiquetas accesibles para las cartas.
+- Anuncios adecuados de parejas encontradas, puntuación y fin de partida.
+- Uso de HTML semántico.
+- Contraste suficiente.
+- Estados que no dependan únicamente del color.
+- Alternativas para sonidos.
+- Respeto a la preferencia de movimiento reducido.
+- Tamaños táctiles cómodos.
+- Mensajes de error comprensibles.
+- Controles accesibles para pausar y reanudar.
+- Instrucciones claras antes de activar reglas especiales.
+
+Las cartas deben comunicar su estado de manera comprensible a tecnologías de asistencia. Evita que el lector de pantalla anuncie información que destruya la mecánica de memoria; la etiqueta accesible debe revelar la identidad únicamente cuando las reglas permitan verla.
+
+Comprueba el flujo de juego sin ratón y sin sonido.
+
+---
+
+# 14. RENDIMIENTO Y ESTABILIDAD
+
+Optimiza el juego para funcionar con fluidez en equipos modestos y móviles.
+
+- Evita renderizados innecesarios del tablero completo.
+- Usa componentes y selectores de estado eficientes.
+- Evita recrear estructuras grandes en cada interacción.
+- Limita los efectos visuales costosos.
+- Utiliza recursos gráficos optimizados.
+- Carga de forma diferida los recursos que no se necesitan al iniciar.
+- Evita animaciones continuas que no aporten valor.
+- Limpia los eventos y las operaciones pendientes al desmontar componentes.
+- Evita fugas de memoria y acumulación de temporizadores.
+- Controla las excepciones del almacenamiento.
+- Mantén una respuesta inmediata a las acciones del jugador.
+
+No optimices a ciegas. Mide el rendimiento cuando sea posible y documenta cualquier problema detectado.
+
+Como objetivo de ingeniería, procura mantener interacciones fluidas y un arranque rápido en equipos modernos de gama media. No afirmes haber alcanzado un presupuesto de rendimiento si no has realizado mediciones.
+
+---
+
+# 15. SEGURIDAD Y PRIVACIDAD
+
+Aunque la primera versión no tenga backend, aplica buenas prácticas.
+
+- No incluyas claves privadas, tokens ni credenciales en el código cliente.
+- No recopiles información personal innecesaria.
+- No transmitas estadísticas ni progreso a servicios externos sin una razón explícita.
+- Valida los datos importados y los datos recuperados del almacenamiento.
+- Limita el tamaño de archivos y estructuras de respaldo.
+- No ejecutes contenido importado como código.
+- Evita inyección de HTML mediante nombres de jugadores, textos, configuraciones o contenido personalizado.
+- Utiliza APIs de manipulación de texto seguras.
+- No uses `eval` ni mecanismos equivalentes para interpretar datos.
+- Evita dependencias abandonadas o innecesarias.
+- Revisa las dependencias y sus vulnerabilidades conocidas.
+- Mantén las configuraciones de construcción separadas de los datos del usuario.
+
+Considera que el almacenamiento local puede ser modificado por el usuario o por código ejecutado en el mismo origen. Por ello, las puntuaciones y recompensas locales no son prueba de resultados competitivos legítimos.
+
+Si el producto evoluciona hacia cuentas, pagos, clasificación global o multijugador en línea, diseña una fase independiente de seguridad de servidor. No agregues autenticación o pagos improvisados a esta versión.
+
+---
+
+# 16. INSTALACIÓN Y FUNCIONAMIENTO WEB
+
+La aplicación debe ejecutarse en un navegador moderno y ser desplegable en un alojamiento web convencional compatible con su tecnología.
+
+Si el proyecto lo permite, prepara también una PWA instalable con soporte offline, pero no sacrifiques el funcionamiento básico por ello.
+
+Si implementas PWA:
+
+- Define un manifiesto válido.
+- Implementa un service worker correcto.
+- Gestiona la actualización de recursos.
+- Evita servir una mezcla incompatible de archivos de versiones diferentes.
+- Permite jugar sin conexión después de la carga e instalación necesarias.
+- Verifica el funcionamiento de los recursos locales.
+- No afirmes que una aplicación es instalable u offline si no lo has probado.
+
+No dependas de un servidor de desarrollo para el funcionamiento final.
+
+Incluye instrucciones claras de instalación, desarrollo, pruebas y construcción de producción.
+
+---
+
+# 17. PLAN DE IMPLEMENTACIÓN POR FASES
+
+Ejecuta las fases en orden. Al terminar cada una, verifica los resultados y continúa.
+
+## Fase 0 — Auditoría
+
+- Inspecciona el repositorio.
+- Identifica las tecnologías y dependencias.
+- Comprueba el estado actual del proyecto.
+- Identifica código reutilizable.
+- Detecta problemas existentes.
+- Presenta un plan breve y priorizado.
+
+No modifiques datos existentes durante la auditoría.
+
+## Fase 1 — Base técnica
+
+- Define o adapta la arquitectura.
+- Configura tipos, módulos y herramientas de prueba.
+- Establece tokens visuales.
+- Implementa el arranque y la navegación básica.
+- Comprueba que la aplicación construye correctamente.
+
+## Fase 2 — Motor del juego
+
+- Implementa cartas, tableros y barajado.
+- Implementa la máquina de estados.
+- Implementa revelación, coincidencias y resolución de errores.
+- Implementa movimientos y condiciones de finalización.
+- Escribe pruebas unitarias antes de construir la progresión completa.
+
+## Fase 3 — Modos de juego
+
+- Clásico.
+- Contrarreloj.
+- Movimientos limitados.
+- Desafío diario determinista.
+- Memoria extrema.
+
+Comprueba que cada modo utiliza las reglas correctas y registra los resultados en el formato apropiado.
+
+## Fase 4 — Interfaz completa
+
+- Inicio.
+- Selección de modo.
+- Tablero.
+- Pausa.
+- Resultados.
+- Estadísticas.
+- Tutorial.
+- Ajustes.
+- Diseño responsivo y accesible.
+
+Conecta cada control con una función real.
+
+## Fase 5 — Progresión
+
+- Mapa galáctico.
+- Sectores y niveles.
+- Experiencia.
+- Recompensas.
+- Logros.
+- Desbloqueables.
+- Temas personalizables.
+
+Verifica que el progreso se conserva y no se duplica.
+
+## Fase 6 — Persistencia
+
+- Almacenamiento local.
+- Autoguardado.
+- Reanudación.
+- Versionado y validación.
+- Recuperación ante corrupción.
+- Respaldo e importación cuando estén implementados.
+
+Prueba recargas y cierres de la aplicación en distintos momentos de una partida.
+
+## Fase 7 — Multijugador local
+
+- Configuración de jugadores.
+- Gestión de turnos.
+- Puntuación independiente.
+- Victoria, derrota y empate.
+- Revancha.
+- Persistencia de la partida si se admite.
+
+Prueba las transiciones de turno y los eventos rápidos.
+
+## Fase 8 — Pulido y rendimiento
+
+- Animaciones.
+- Sonido.
+- Ajustes de accesibilidad.
+- Optimización.
+- Diseño móvil.
+- Errores de consola.
+- Compatibilidad de recursos.
+
+## Fase 9 — Validación final
+
+- Ejecuta todas las pruebas disponibles.
+- Construye la versión de producción.
+- Prueba los flujos principales.
+- Corrige errores detectados.
+- Documenta las limitaciones que permanezcan.
+
+No avances dejando fallos críticos conocidos sin documentar.
+
+---
+
+# 18. ESTRATEGIA DE PRUEBAS AUTOMÁTICAS
+
+Utiliza las herramientas de prueba que ya tenga el proyecto cuando sean adecuadas. Si está vacío, elige herramientas compatibles con el framework seleccionado, por ejemplo Vitest para pruebas unitarias y Playwright para pruebas de extremo a extremo.
+
+No instales ambas herramientas si una alternativa ya existente satisface las necesidades.
+
+## Pruebas unitarias
+
+Comprueba:
+
+- Generación de tableros.
+- Cantidad y unicidad de identificadores.
+- Distribución exacta de parejas.
+- Barajado.
+- Coincidencias.
+- Movimientos.
+- Puntuación.
+- Temporizadores.
+- Condiciones de victoria y derrota.
+- Reglas de cada modo.
+- Experiencia y recompensas.
+- Desbloqueables.
+- Logros.
+- Generación determinista del desafío diario.
+
+## Pruebas de integración
+
+Comprueba:
+
+- Motor conectado a la interfaz.
+- Guardado y restauración.
+- Actualización de estadísticas.
+- Persistencia de preferencias.
+- Cambios de modo.
+- Reinicios.
+- Pausa y reanudación.
+- Turnos del multijugador local.
+- Prevención de recompensas duplicadas.
+
+## Pruebas de extremo a extremo
+
+Automatiza, al menos, estos recorridos:
+
+1. Abrir el juego por primera vez.
+2. Iniciar una partida clásica.
+3. Encontrar una pareja correcta.
+4. Resolver una pareja incorrecta.
+5. Intentar voltear una tercera carta antes de que termine la resolución.
+6. Completar una partida.
+7. Consultar el resultado.
+8. Recargar la aplicación y verificar la persistencia.
+9. Reanudar una partida incompleta.
+10. Completar un nivel y desbloquear el siguiente.
+11. Consultar un logro.
+12. Cambiar el tema visual.
+13. Jugar una partida contrarreloj.
+14. Agotar los movimientos en el modo limitado.
+15. Iniciar y completar el desafío diario.
+16. Jugar una partida de memoria extrema.
+17. Completar una partida multijugador de dos personas.
+18. Comprobar el comportamiento en una pantalla móvil.
+19. Navegar por las funciones principales con teclado.
+20. Comprobar que una partida finalizada no puede recibir nuevas acciones ni recompensas.
+
+Incluye pruebas de regresión para los errores encontrados durante el desarrollo.
+
+## Validaciones técnicas
+
+Ejecuta los comandos reales disponibles para:
+
+- Lint.
+- Comprobación de tipos.
+- Pruebas unitarias.
+- Pruebas de integración.
+- Pruebas de extremo a extremo.
+- Construcción de producción.
+
+Si una categoría no existe en el proyecto, indica que no está configurada en lugar de afirmar que pasó.
+
+No ocultes fallos mediante la desactivación general de reglas de lint, la eliminación de pruebas o la conversión indiscriminada de errores en advertencias.
+
+---
+
+# 19. CRITERIOS DE ACEPTACIÓN
+
+El trabajo se considera funcionalmente terminado únicamente cuando se cumplen y verifican los siguientes criterios.
+
+## Motor
+
+- [ ] El tablero contiene exactamente dos cartas por pareja.
+- [ ] No existen identificadores duplicados dentro de una partida.
+- [ ] Las parejas correctas se registran una sola vez.
+- [ ] Las cartas encontradas permanecen visibles.
+- [ ] No se puede voltear una tercera carta durante una resolución pendiente.
+- [ ] Los clics rápidos no alteran las reglas.
+- [ ] Los temporizadores no finalizan la partida dos veces.
+- [ ] Reiniciar invalida las operaciones pendientes de la partida anterior.
+- [ ] Las condiciones de victoria y derrota son reproducibles.
+
+## Modos
+
+- [ ] Los cinco modos funcionan y tienen reglas diferenciadas.
+- [ ] El desafío diario es determinista para una misma fecha y configuración.
+- [ ] La dificultad progresa mediante parámetros verificables.
+- [ ] El multijugador local gestiona turnos, puntuaciones y resultados correctamente.
+
+## Progresión
+
+- [ ] Completar un nivel puede desbloquear contenido real.
+- [ ] La experiencia y las recompensas no se duplican.
+- [ ] Los logros responden a condiciones verificables.
+- [ ] Los temas desbloqueables cambian la apariencia del juego.
+- [ ] Los niveles bloqueados no pueden iniciarse sin cumplir sus condiciones.
+
+## Persistencia
+
+- [ ] El progreso sobrevive a una recarga.
+- [ ] Una partida incompleta puede reanudarse sin cambiar el tablero.
+- [ ] Las estadísticas no se duplican después de restaurar.
+- [ ] Los datos corruptos se manejan sin destruir indiscriminadamente el resto del progreso.
+- [ ] Las preferencias sobreviven a una recarga.
+
+## Interfaz
+
+- [ ] Todas las pantallas principales son navegables.
+- [ ] Los controles visibles realizan acciones reales.
+- [ ] No existen botones decorativos que aparenten funcionar.
+- [ ] La interfaz se adapta a escritorio, tableta y móvil.
+- [ ] El juego es utilizable mediante teclado.
+- [ ] Las animaciones pueden reducirse y el sonido puede silenciarse.
+- [ ] Los errores y estados vacíos tienen mensajes claros.
+
+## Calidad técnica
+
+- [ ] La construcción de producción termina correctamente.
+- [ ] Las pruebas críticas pasan.
+- [ ] No quedan errores críticos conocidos sin documentar.
+- [ ] No hay claves secretas incluidas en el cliente.
+- [ ] Las dependencias añadidas tienen una justificación.
+- [ ] Existe documentación para instalar, ejecutar, probar y construir el proyecto.
+
+No marques una casilla como cumplida sin evidencia.
+
+---
+
+# 20. ENTREGA FINAL
+
+Al finalizar, presenta un informe breve pero preciso con:
+
+1. Diagnóstico inicial del proyecto.
+2. Arquitectura finalmente utilizada y motivos.
+3. Funcionalidades implementadas.
+4. Archivos o módulos principales creados o modificados.
+5. Comandos de instalación, desarrollo, pruebas y construcción.
+6. Pruebas ejecutadas y sus resultados reales.
+7. Criterios de aceptación completados.
+8. Funcionalidades pendientes o limitaciones.
+9. Riesgos conocidos.
+10. Pasos para desplegar el juego en un alojamiento web.
+11. Recomendaciones para evolucionar hacia un producto comercial.
+
+Distingue claramente entre:
+
+- Implementado y probado.
+- Implementado, pero no probado completamente.
+- Parcialmente implementado.
+- No implementado.
+
+No declares una función terminada únicamente porque exista su componente visual o porque el código parezca correcto.
+
+## Prioridad final
+
+La prioridad es construir un juego coherente y estable, no producir una gran cantidad de archivos ni una interfaz impresionante que falle al jugar.
+
+Primero garantiza que el motor y las reglas sean correctos. Después integra persistencia, progresión y multijugador. Finalmente, pule la experiencia visual, las animaciones, el audio y el rendimiento.
+
+**Inspecciona el proyecto existente, conserva lo funcional, implementa el juego completo por fases y verifica cada resultado antes de continuar. No te limites a generar un plan o una maqueta: entrega una aplicación real, jugable y comprobable.**
